@@ -1,0 +1,1 @@
+alert("Apabila anda mengeklik OK Anda dianggap mensetujui persyaratan kami")
