@@ -19,6 +19,21 @@ class BukuController extends Controller
             return view('dashboard', compact('data_buku', 'no', 'total_harga','jumlah_buku'));
         }
 
+        public function list_buku(){
+            $batas = 5;
+            $data_buku = Buku::orderBy('id','desc')->paginate($batas);
+            $no = $batas * ($data_buku->currentPage()-1);
+            return view('/buku/list_buku', compact('data_buku'));
+        }
+
+        public function detail_buku(){
+            $batas = 5;
+            $data_buku = Buku::orderBy('id','desc')->paginate($batas);
+            $no = $batas * ($data_buku->currentPage()-1);
+            return view('/buku/detail_buku', compact('data_buku'));
+        }
+
+
 
         public function create(){
             $buku = new Buku; 
@@ -169,6 +184,17 @@ class BukuController extends Controller
             $jumlah_buku = $data_buku->count();
         
             return view('buku.search', compact('data_buku', 'total_harga', 'no', 'jumlah_buku', 'cari'));
-        }    
+        }
+        
+        public function photos(){
+            return $this->hasMany('App\Buku', 'id_buku', 'id');
+        }
+
+        public function galbuku($title) {
+            $buku = Buku::find($id);
+            $gallery = $buku->photos()->orderBy('id', 'desc')->pagination(5);
+            return view('buku.detail_buku', compact('buku'));
+        }
+
 
     }

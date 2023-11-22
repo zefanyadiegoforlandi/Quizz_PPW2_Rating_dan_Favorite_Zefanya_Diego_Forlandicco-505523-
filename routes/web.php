@@ -42,7 +42,11 @@ Route::middleware('auth' )->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-	
+	Route::get('/buku/list_buku',[BukuController::class,'list_buku']);
+	Route::get('/buku/detail_buku', [BukuController::class,'detail_buku'])->name('buku.detail_buku');
+	Route::get('/detail_buku/{title}', [BukuController::class, 'galbuku'])->name('galeri.buku');
+
+
 });
 
 require __DIR__.'/auth.php';
