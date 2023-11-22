@@ -190,11 +190,11 @@ class BukuController extends Controller
             return $this->hasMany('App\Buku', 'id_buku', 'id');
         }
 
-        public function galbuku($title) {
-            $buku = Buku::find($id);
-            $gallery = $buku->photos()->orderBy('id', 'desc')->pagination(5);
-            return view('buku.detail_buku', compact('buku'));
+        public function galbuku($title)
+        {
+            $bukus = Buku::where('buku_seo', $title)->first();
+            $galeries = $bukus->galleries()->orderBy('id', 'desc')->paginate(5);
+            return view ('buku.detail_buku', compact('bukus', 'galeries'));
         }
-
 
     }

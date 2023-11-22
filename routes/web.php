@@ -23,12 +23,12 @@ Route::get('/', function () {
 
 Route::get('/dashboard', [ProfileController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
-
 Route::middleware('auth' )->group(function () {
 
 	Route::middleware('admin' )->group(function () {
 		Route::get('/buku/create', [BukuController::class, 'create'])->name('buku.create');
 		Route::get('/buku/edit/{id}', [BukuController::class, 'edit'])->name('buku.edit');
+
 		//store update
 		Route::post('/buku/update/{id}', [BukuController::class, 'update'])->name('buku.update');
 		Route::get('/buku/search', [BukuController::class, 'search'])->name('buku.search');
@@ -44,8 +44,7 @@ Route::middleware('auth' )->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 	Route::get('/buku/list_buku',[BukuController::class,'list_buku']);
 	Route::get('/buku/detail_buku', [BukuController::class,'detail_buku'])->name('buku.detail_buku');
-	Route::get('/detail_buku/{title}', [BukuController::class, 'galbuku'])->name('galeri.buku');
-
+	Route::get('/buku/detail_buku/{title}', [BukuController::class, 'galbuku'])->name('galeri.buku');
 
 });
 

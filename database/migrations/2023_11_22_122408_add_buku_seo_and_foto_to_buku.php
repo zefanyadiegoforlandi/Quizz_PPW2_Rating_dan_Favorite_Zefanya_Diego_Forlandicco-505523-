@@ -9,20 +9,23 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
         Schema::table('buku', function (Blueprint $table) {
-            //
+            $table->string('buku_seo')->nullable(); 
+            $table->string('foto')->nullable(); 
         });
     }
+
 
     /**
      * Reverse the migrations.
      */
-    public function down(): void
+    public function down()
     {
         Schema::table('buku', function (Blueprint $table) {
-            //
+            $table->dropColumn('buku_seo');
+            $table->dropColumn('foto');
         });
     }
 };
