@@ -23,6 +23,7 @@
     "dependencies": {
         "bootstrap-datepicker": "^1.10.0",
         "flash-messenger": "^1.1.1",
+        "flatpickr": "^4.6.13",
         "laravel-vue-pagination": "^4.1.1"
     }
 }

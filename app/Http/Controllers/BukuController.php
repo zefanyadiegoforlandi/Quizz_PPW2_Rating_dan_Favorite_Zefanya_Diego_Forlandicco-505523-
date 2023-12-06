@@ -10,14 +10,66 @@ use Intervention\Image\Facades\Image;
 
 class BukuController extends Controller
 {
-        public function index(){
-            $batas = 5;
-            $jumlah_buku = Buku::count();
-            $data_buku = Buku::orderBy('id','desc')->paginate($batas);
-            $no = $batas * ($data_buku->currentPage()-1);
-            $total_harga = Buku::sum('harga');
-            return view('dashboard', compact('data_buku', 'no', 'total_harga','jumlah_buku'));
+    public function index()
+    {
+        $batas = 5;
+        $jumlah_buku = Buku::count();
+        $data_buku = Buku::orderBy('id', 'desc')->paginate($batas);
+        $no = $batas * ($data_buku->currentPage() - 1);
+        foreach ($data_buku as $buku) {
+            $jumlah_rating = $buku->rating_1 + $buku->rating_2 + $buku->rating_3 + $buku->rating_4 + $buku->rating_5;
+            $avg_rating = ($jumlah_rating > 0) ? ($buku->rating_1 + $buku->rating_2 * 2 + $buku->rating_3 * 3 + $buku->rating_4 * 4 + $buku->rating_5 * 5) / $jumlah_rating : 0;
+            $buku->avg_rating = number_format($avg_rating, 2);
         }
+        $total_harga = Buku::sum('harga');
+        return view('/dashboard', compact('data_buku', 'no', 'total_harga', 'jumlah_buku', 'avg_rating'));
+    }
+
+        public function rating_update(Request $request, string $id)
+        {
+            // Ambil nilai rating dari input
+            $selectedRating = $request->input('rating', 0);
+        
+            // Temukan objek buku berdasarkan ID
+            $buku = Buku::find($id);
+        
+            // Validasi input rating
+            $request->validate([
+                'rating' => 'numeric|min:1|max:5',
+            ]);
+          
+            // Pastikan objek buku ditemukan sebelum mencoba memperbarui rating
+            if (!$buku) {
+                return redirect('/buku')->with('pesan', 'Buku tidak ditemukan');
+            }
+        
+            // Perbarui kolom-kolom rating berdasarkan rating yang dipilih
+            $buku->update([
+                'rating_1' => ($selectedRating == 1) ? $buku->rating_1 + 1 : $buku->rating_1,
+                'rating_2' => ($selectedRating == 2) ? $buku->rating_2 + 1 : $buku->rating_2,
+                'rating_3' => ($selectedRating == 3) ? $buku->rating_3 + 1 : $buku->rating_3,
+                'rating_4' => ($selectedRating == 4) ? $buku->rating_4 + 1 : $buku->rating_4,
+                'rating_5' => ($selectedRating == 5) ? $buku->rating_5 + 1 : $buku->rating_5,
+            ]);
+        
+            // Buat array data rating untuk digunakan setelah perbaruan
+            $bukuData = [
+                'rating_1' => $buku->rating_1,
+                'rating_2' => $buku->rating_2,
+                'rating_3' => $buku->rating_3,
+                'rating_4' => $buku->rating_4,
+                'rating_5' => $buku->rating_5
+            ];
+        
+            // Redirect ke halaman buku dengan pesan sukses
+            return redirect('/buku')->with('pesan', 'Rating Berhasil di Simpan');
+        }
+        public function rating($id) {
+            $buku = Buku::find($id);
+            return view('buku.rating', compact('buku'));
+        }
+        
+    
 
         public function list_buku(){
             $batas = 5;
@@ -50,8 +102,14 @@ class BukuController extends Controller
                 'judul' => $request->judul,
                 'penulis' => $request->penulis,
                 'harga' => $request->harga,
-                'tgl_terbit' => $request->tgl_terbit
+                'tgl_terbit' => $request->tgl_terbit,
+                'rating_1'=> $rating1,
+                'rating_2'=>$rating_2,
+                'rating_3'=> $rating_3,
+                'rating_4' => $rating_4,
+                'rating_5' => $rating_5
             ];
+
         
             // Jika terdapat file thumbnail, proses dan simpan thumbnail
             if ($request->hasFile('thumbnail')) {
@@ -99,10 +157,14 @@ class BukuController extends Controller
         }
 
         public function update(Request $request, string $id ) {
+            $selectedRating = $request->input('rating', 0);
+
             $buku = Buku::find($id);
             $request->validate([
-                'thumbnail' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-                'gallery.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+            'thumbnail' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'gallery.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'rating' => 'numeric|min:1|max:5', // Satu kolom untuk nilai peringkat
+
 
             ]);
         
@@ -120,15 +182,29 @@ class BukuController extends Controller
                     'harga'     => $request->harga,
                     'tgl_terbit'=> $request->tgl_terbit,
                     'filename'  => $fileName,
-                    'filepath'  => '/storage/' . $filePath
+                    'filepath'  => '/storage/' . $filePath,
+                    // Menambahkan nilai +1 untuk setiap kolom rating
+                    'rating_1'   => ($selectedRating == 1) ? $buku->rating_1 + 1 : $buku->rating_1,
+                    'rating_2'   => ($selectedRating == 2) ? $buku->rating_2 + 1 : $buku->rating_2,
+                    'rating_3'   => ($selectedRating == 3) ? $buku->rating_3 + 1 : $buku->rating_3,
+                    'rating_4'   => ($selectedRating == 4) ? $buku->rating_4 + 1 : $buku->rating_4,
+                    'rating_5'   => ($selectedRating == 5) ? $buku->rating_5 + 1 : $buku->rating_5,
                 ]);
             } else {
+
                 // Jika tidak ada thumbnail diunggah, tetap lakukan update data buku tanpa mengubah thumbnail.
                 $buku->update([
                     'judul'     => $request->judul,
                     'penulis'   => $request->penulis,
                     'harga'     => $request->harga,
                     'tgl_terbit' => $request->tgl_terbit,
+                    // Menambahkan nilai +1 untuk setiap kolom rating
+                    'rating_1'   => ($selectedRating == 1) ? $buku->rating_1 + 1 : $buku->rating_1,
+                    'rating_2'   => ($selectedRating == 2) ? $buku->rating_2 + 1 : $buku->rating_2,
+                    'rating_3'   => ($selectedRating == 3) ? $buku->rating_3 + 1 : $buku->rating_3,
+                    'rating_4'   => ($selectedRating == 4) ? $buku->rating_4 + 1 : $buku->rating_4,
+                    'rating_5'   => ($selectedRating == 5) ? $buku->rating_5 + 1 : $buku->rating_5,
+
                 ]);
             }
         
@@ -145,27 +221,9 @@ class BukuController extends Controller
                     ]);
                 }
             }
-            
+                    
         
             return redirect('/buku')->with('pesan', 'Perubahan Data Buku Berhasil di Simpan');
-        }
-
-        public function hapusGallery($bukuId, $galleryId)
-        {
-            try {
-                \Log::info("Menghapus galeri: bukuId - $bukuId, galleryId - $galleryId");
-
-                $gallery = Gallery::findOrFail($galleryId);
-                $gallery->delete();
-
-                // atau menggunakan destroy
-                // Gallery::destroy($galleryId);
-
-                return redirect()->back()->with('success', 'Gambar berhasil dihapus');
-            } catch (\Exception $e) {
-                \Log::error("Gagal menghapus galeri: " . $e->getMessage());
-                return redirect()->back()->with('error', 'Gagal menghapus gambar');
-            }
         }
 
 
@@ -195,6 +253,31 @@ class BukuController extends Controller
             $bukus = Buku::where('buku_seo', $title)->first();
             $galeries = $bukus->galleries()->orderBy('id', 'desc')->paginate(5);
             return view ('buku.detail_buku', compact('bukus', 'galeries'));
+        }
+
+
+        public function add_favourite(Buku $buku)
+        {
+            $user = Auth::user();
+
+            if (!$user->favourites) {
+                $user->favourites = [];
+            }
+
+            if (!in_array($buku->id, $user->favourites)) {
+                $user->favourites[] = $buku->id;
+                $user->save();
+            }
+
+            return redirect()->back()->with('success', 'Buku ditambahkan ke daftar favorit.');
+        }
+
+        public function my_favourite()
+        {
+            $user = Auth::user();
+            $favouriteBooks = Buku::whereIn('id', $user->favourites ?? [])->get(['judul', 'pengarang']);
+
+            return view('buku.myfavourite', compact('favouriteBooks'));
         }
 
     }

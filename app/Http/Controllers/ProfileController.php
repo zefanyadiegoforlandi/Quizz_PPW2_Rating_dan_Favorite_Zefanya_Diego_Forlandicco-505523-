@@ -61,13 +61,19 @@ class ProfileController extends Controller
     }
 
     // kode BukuController : 
-    public function index(){
+    public function index()
+    {
         $batas = 5;
-        $data_buku = Buku::paginate($batas);
+        $jumlah_buku = Buku::count();
+        $data_buku = Buku::orderBy('id', 'desc')->paginate($batas);
         $no = $batas * ($data_buku->currentPage() - 1);
-        $total_harga = DB::table('buku')->sum('harga');
-        $jumlah_buku = $data_buku->count();
-        return view('dashboard', compact('data_buku', 'total_harga', 'no', 'jumlah_buku'));
+        foreach ($data_buku as $buku) {
+            $jumlah_rating = $buku->rating_1 + $buku->rating_2 + $buku->rating_3 + $buku->rating_4 + $buku->rating_5;
+            $avg_rating = ($jumlah_rating > 0) ? ($buku->rating_1 + $buku->rating_2 * 2 + $buku->rating_3 * 3 + $buku->rating_4 * 4 + $buku->rating_5 * 5) / $jumlah_rating : 0;
+            $buku->avg_rating = number_format($avg_rating, 2);
+        }
+        $total_harga = Buku::sum('harga');
+        return view('/dashboard', compact('data_buku', 'no', 'total_harga', 'jumlah_buku', 'avg_rating'));
     }
 
     public function create() {
@@ -110,4 +116,5 @@ class ProfileController extends Controller
     
         return view('buku.search', compact('data_buku', 'total_harga', 'no', 'jumlah_buku', 'cari'));
     }
+    
 }

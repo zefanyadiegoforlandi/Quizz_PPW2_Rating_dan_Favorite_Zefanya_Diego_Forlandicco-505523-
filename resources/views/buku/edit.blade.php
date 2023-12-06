@@ -99,11 +99,9 @@
                 @endforeach
             </div>
             
-            
-        
             <div class="flex justify-between"> <!-- Menggunakan flex untuk meletakkan tombol "Simpan" dan "Batal" sejajar -->
                 <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Simpan</button>
-                <a href="/buku" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Batal</a>
+                <a href="/dashboard" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Batal</a>
             </div>
             
         </form>

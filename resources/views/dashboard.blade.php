@@ -4,7 +4,7 @@
             {{ __('Dashboard') }}
         </h2>
     </x-slot>
-    
+
     <h1 class="text-3xl font-semibold text-center mb-6 bg-gray-200 py-2">DAFTAR BUKU</h1>
     <div class="mt-4 mb-4 p-4 bg-white shadow-md flex items-center justify-between">
         <form action="{{ route('buku.search') }}" method="GET" class="flex items-center">
@@ -22,12 +22,15 @@
                     <th>Gambar</th>
                     <th>Judul Buku</th>
                     <th>Penulis</th>
+                    <th>Rating</th>
                     <th>Harga</th>
                     <th>Tanggal Terbit</th>
-                    <th>buku_seo</th>
+                    <th>Detail Buku</th>
                     @if(Auth::check() && Auth::user()->level == 'admin')
                     <th>Aksi</th>
                     @endif
+                    <th>Isikan Rating</th>
+
                 </tr>
             </thead>
 
@@ -50,8 +53,12 @@
                         </div>
                     @endif
                     </td>
-                    <td>{{ $b->judul }}</td>
+                    <td>{{ $b->judul }}
+                    </td>
                     <td>{{ $b->penulis }}</td>
+                    <td>
+                        <p class="text-blue-700">" Rating : {{$b->avg_rating}}"</p>  
+                    </td>    
                     <td>{{ 'Rp'.number_format($b->harga, 2, ',', '.') }}</td>
                     <td>{{ \Carbon\Carbon::parse($b->tgl_terbit)->format('D/m/Y') }}</td>
                     <td><form action="{{ route('buku.detail_buku', $b->id) }}">
@@ -69,10 +76,16 @@
                         </form>
                     </td>
                     @endif
+                    <td>
+                        <form action="{{ route('buku.rating', $b->id) }}">
+                            <button class="btn btn-primary">Rating</button>
+                        </form>
+                    </td>    
                 </tr>
                 @endforeach
             </tbody>
         </table>
+        
     </div>
 
     <div class="mt-4">

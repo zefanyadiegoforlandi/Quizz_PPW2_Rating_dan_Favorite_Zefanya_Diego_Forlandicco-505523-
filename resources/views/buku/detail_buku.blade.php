@@ -9,15 +9,16 @@
     </x-slot>
 
 <body>   
-    <h1 class="text-3xl font-semibold text-center mb-6 bg-gray-200 py-2">DETAIL BUKU</h1>
     
 
+    <h1 class="text-3xl font-semibold text-center mb-6 bg-gray-200 py-2">DETAIL BUKU</h1>
     <div class="table-responsive">
         <table class="table table-striped table-bordered">
             <thead class="table-dark">
                 <tr>
                     <th>Gambar</th>
                     <th>Judul Buku</th>
+                    <th>Tambah Favourite</th>
                 </tr>
             </thead>
             <tbody>
@@ -41,6 +42,15 @@
                         </div>
                     </td>
                     <td>{{ $b->judul }}</td>
+                    <td>
+                        @auth
+                            <form action="{{ route('favorites.store', ['buku' => $b->id]) }}" method="post">
+                                @csrf
+                                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                    Tambah ke Favorit</button>
+                            </form>
+                        @endauth
+                    </td>
                 </tr>
                 @endforeach
             </tbody>
